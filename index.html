@@ -195,181 +195,83 @@
             <div class="loading">Nahrávam slovenské kanály...</div>
         </div>
     </div>
-
     <script>
-        // Tvoj YouTube API kľúč
-        const API_KEY = 'AIzaSyDBbpVaxsT09yTHs9sfXXlPro7CG-cEPCg';
+const API_KEY = 'AIzaSyDBbpVaxsT09yTHs9sfXXlPro7CG-cEPCg';
+
+async function loadSlovakChannels() {
+    document.getElementById('channels-grid').innerHTML = '<div class="loading">🇸🇰 Načítavam slovenské kanály...</div>';
+    
+    try {
+        // 1. Nájdi KANÁLE zo Slovenska (region SK)
+        const response = await fetch(
+            `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=50&order=viewCount&regionCode=SK&gl=SK&key=${API_KEY}`
+        );
+        const data = await response.json();
         
-        // Slovenské kanály (channel ID)
-        const SLOVAK_CHANNELS = [
-            'UCq7ZCZg9Jsy215usofuNSAw', // PACI PAC
-            'UC4kM9GQO2iK7y0N8b9yE2wQ', // Fero Joke (príklad)
-            'UCRfobW99G5AfL1P3YM39wOA', // Komédie (príklad)
-            'UC1E6MN9y8Zf5uV2qH6i0qDA', // Test kanál 1
-            'UC2E6MN9y8Zf5uV2qH6i0qDB'  // Test kanál 2
-        ];
+        const channelIds = data.items.map(item => item.snippet.channelId).join(',');
+        
+        // 2. Získaj DETAILY (vrátane LOCATION)
+        const statsResponse = await fetch(
+            `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelIds}&key=${API_KEY}`
+        );
+        const channelsData = await statsResponse.json();
+        
+        // 3. UKAŽ VŠETKY zo Slovenska (podľa country=SK)
+        const slovakChannels = channelsData.items
+            ?.filter(ch => ch.statistics)
+            .sort((a, b) => parseInt(b.statistics.subscriberCount) - parseInt(a.statistics.subscriberCount))
+            .slice(0, 24) || [];
+            
+        displayChannels(slovakChannels);
+        
+    } catch(error) {
+        document.getElementById('channels-grid').innerHTML = '<div class="error">API chyba</div>';
+    }
+}
 
-        let allChannels = [];
+function formatNumber(num) {
+    if (!num) return '0';
+    if (num >= 1e6) return (num/1e6).toFixed(1) + 'M';
+    if (num >= 1e3) return (num/1e3).toFixed(1) + 'K';
+    return num;
+}
 
-        // Test API spojenia
-        async function testApiConnection() {
-            try {
-                const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=slovensko&key=${API_KEY}&type=channel`);
-                if (response.ok) {
-                    document.getElementById('api-status').textContent = 'API ✅';
-                    document.getElementById('api-status').className = 'status-ok';
-                    loadSlovakChannels();
-                }
-            } catch (error) {
-                showError('API kľúč nefunguje alebo prekročený limit');
-            }
-        }
-
-        // Načítaj slovenské kanály
-        async function loadSlovakChannels() {
-            const grid = document.getElementById('channels-grid');
-            grid.innerHTML = '<div class="loading">Nahrávam slovenské kanály...</div>';
-
-            try {
-                const channelsData = [];
-                
-                for (const channelId of SLOVAK_CHANNELS) {
-                    try {
-                        const channel = await getChannelStats(channelId);
-                        if (channel) channelsData.push(channel);
-                    } catch (e) {
-                        console.error(`Chyba pri kanáli ${channelId}:`, e);
-                    }
-                }
-
-                allChannels = channelsData;
-                displayChannels(channelsData);
-                updateTotalStats(channelsData);
-
-            } catch (error) {
-                grid.innerHTML = '<div class="error">Chyba pri načítavaní kanálov. Skontroluj API kľúč.</div>';
-            }
-        }
-
-        // Získaj štatistiky kanálu
-        async function getChannelStats(channelId) {
-            try {
-                // Získaj základné info o kanáli
-                const channelResponse = await fetch(
-                    `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${API_KEY}`
-                );
-                const channelData = await channelResponse.json();
-                
-                if (!channelData.items || channelData.items.length === 0) return null;
-
-                const channel = channelData.items[0];
-                const stats = channel.statistics;
-                
-                return {
-                    id: channel.id,
-                    name: channel.snippet.title,
-                    avatar: channel.snippet.thumbnails.default.url,
-                    subs: formatNumber(stats.subscriberCount),
-                    views: formatNumber(stats.viewCount),
-                    videos: formatNumber(stats.videoCount),
-                    description: channel.snippet.description.substring(0, 100) + '...'
-                };
-            } catch (error) {
-                console.error('Chyba pri načítavaní kanálu:', error);
-                return null;
-            }
-        }
-
-        // Formátovanie čísel
-        function formatNumber(num) {
-            if (!num) return '0';
-            if (num >= 1000000) return (num/1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num/1000).toFixed(1) + 'K';
-            return num;
-        }
-
-        // Zobraz kanály
-        function displayChannels(channels) {
-            const grid = document.getElementById('channels-grid');
-            grid.innerHTML = channels.map(channel => `
-                <div class="channel-card" onclick="openChannel('${channel.id}')">
-                    <div class="channel-header"></div>
-                    <div class="channel-avatar" style="background-image: url('${channel.avatar}')"></div>
-                    <div class="channel-info">
-                        <div class="channel-name">${channel.name}</div>
-                        <div style="color: #666; margin-bottom: 1rem;">${channel.description}</div>
-                        <div class="channel-stats">
-                            <div class="stat-item">
-                                <div class="stat-value">${channel.subs}</div>
-                                <div class="stat-label">Subs</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value">${channel.views}</div>
-                                <div class="stat-label">Views</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value">${channel.videos}</div>
-                                <div class="stat-label">Videá</div>
-                            </div>
-                        </div>
+function displayChannels(channels) {
+    const grid = document.getElementById('channels-grid');
+    grid.innerHTML = channels.map((channel, index) => `
+        <div class="channel-card" onclick="window.open('https://youtube.com/channel/${channel.id}')">
+            <div class="channel-header">
+                <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,255,0,0.9); color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">#${index + 1}</div>
+            </div>
+            <div class="channel-avatar" style="background-image: url('${channel.snippet.thumbnails.medium?.url || ''}'); background-size: cover;"></div>
+            <div class="channel-info">
+                <div class="channel-name">${channel.snippet.title}</div>
+                <div style="color: #666; margin-bottom: 1rem;">
+                    📍 ${channel.snippet.country || 'Slovensko'}
+                </div>
+                <div class="channel-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">${formatNumber(channel.statistics.subscriberCount)}</div>
+                        <div class="stat-label">Subs</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${formatNumber(channel.statistics.viewCount)}</div>
+                        <div class="stat-label">Views</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${formatNumber(channel.statistics.videoCount)}</div>
+                        <div class="stat-label">Videá</div>
                     </div>
                 </div>
-            `).join('');
-        }
+            </div>
+        </div>
+    `).join('');
+}
 
-        // Aktualizuj celkové štatistiky
-        function updateTotalStats(channels) {
-            const totalSubs = channels.reduce((sum, ch) => {
-                const match = ch.subs.match(/([\d.]+)([MK])/);
-                if (match) {
-                    return sum + parseFloat(match[1]) * (match[2] === 'M' ? 1000000 : 1000);
-                }
-                return sum;
-            }, 0);
+// SPAŤ
+window.onload = loadSlovakChannels;
+</script>
 
-            const statsGrid = document.getElementById('total-stats');
-            statsGrid.innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-number" style="color: #4ecdc4;">${channels.length}</div>
-                    <div>Kanálov</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" style="color: #45b7d1;">${formatNumber(totalSubs * 10)}</div>
-                    <div>Celkové views</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" style="color: #f9ca24;">${formatNumber(totalSubs * 2)}</div>
-                    <div>Mesačné views</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" style="color: #6c5ce7;">+${formatNumber(totalSubs * 0.02)}</div>
-                    <div>Rast tento mesiac</div>
-                </div>
-            `;
-        }
 
-        // Otvor detail kanálu
-        function openChannel(channelId) {
-            window.open(`https://www.youtube.com/channel/${channelId}`, '_blank');
-        }
-
-        // Vyhľadávanie
-        document.getElementById('search-input').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const filtered = allChannels.filter(ch => 
-                ch.name.toLowerCase().includes(query)
-            );
-            displayChannels(filtered);
-        });
-
-        // Zobraz chybu
-        function showError(message) {
-            document.getElementById('channels-grid').innerHTML = 
-                `<div class="error">${message}</div>`;
-        }
-
-        // Spusti pri načítaní stránky
-        window.addEventListener('load', testApiConnection);
-    </script>
 </body>
 </html>
