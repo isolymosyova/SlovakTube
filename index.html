@@ -129,7 +129,7 @@
     <script>
       const API_KEY = "AIzaSyDBbpVaxsT09yTHs9sfXXlPro7CG-cEPCg";
 
-      // TOP 12 SKUTOČNÝCH slovenských kanálov (channel IDs)
+      // TOP 14 SKUTOČNÝCH slovenských kanálov (channel IDs)
       const SLOVAK_CHANNELS = [
         "UCmsd0Ar0UoZoMbYEBUWLWMA", // Asimister
         "UC-yJccH4T1UnNrY0YyspGYg", // DONFANTASTICKYPESS
@@ -176,7 +176,7 @@
 
       async function loadApiChannels() {
         const grid = document.getElementById("channels-grid");
-        const ids = SLOVAK_CHANNELS.slice(0, 8).join(",");
+        const ids = SLOVAK_CHANNELS.slice(0, 25).join(",");
 
         try {
           const response = await fetch(
