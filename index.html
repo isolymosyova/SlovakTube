@@ -172,6 +172,7 @@
         background: #d4edda;
         color: #155724;
       }
+ /* ⭐ MOBILE OPTIMIZATION ⭐ */
       @media (max-width: 768px) {
         .container {
           padding: 1rem;
@@ -399,6 +400,31 @@
         document.querySelector('meta[property="og:image"]').setAttribute('content', dataUrl);
         document.querySelector('meta[name="twitter:image"]').setAttribute('content', dataUrl);
       }
+      // ⭐ DYNAMICKÉ META TAGS ⭐
+      function updateMetaDate() {
+        const now = new Date();
+        const monthNames = ['január', 'február', 'marec', 'apríl', 'máj', 'jún',
+                            'júl', 'august', 'september', 'október', 'november', 'december'];
+        const month = monthNames[now.getMonth()];
+        const year = now.getFullYear();
+        
+        // Description
+        const desc = document.querySelector('meta[name="description"]');
+        if (desc) {
+          desc.setAttribute('content', desc.getAttribute('content').replace(/marec 2026/, `${month} ${year}`));
+        }
+        
+        // Title
+        document.title = document.title.replace('marec 2026', `${month} ${year}`);
+        
+        // Schema.org
+        const schema = document.querySelector('script[type="application/ld+json"]');
+        if (schema) {
+          const data = JSON.parse(schema.textContent);
+          data.datePublished = now.toISOString().split('T')[0];
+          data.dateModified = now.toISOString().split('T')[0];
+          schema.textContent = JSON.stringify(data);
+        }
       async function loadChannels() {
         const status = document.getElementById("status");
         status.innerHTML =
@@ -518,6 +544,7 @@
     </script>
   </body>
 </html>
+
 
 
 
