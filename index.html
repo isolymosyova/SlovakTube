@@ -342,7 +342,63 @@
         "UCia0mF-pM9xo5ZMN8DoFp_Q", //   
         "UCKo69ZqrTI1uz1Kx4V6WTYQ", //   
       ];
-
+     // ⭐ DYNAMICKÝ SOCIAL MEDIA THUMBNAIL (CANVAS) ⭐
+      function createThumbnail() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1200; 
+        canvas.height = 630;
+        const ctx = canvas.getContext('2d');
+        
+        // Červený gradient pozadie
+        const gradient = ctx.createLinearGradient(0, 0, 1200, 630);
+        gradient.addColorStop(0, '#ff4444'); 
+        gradient.addColorStop(1, '#cc0000');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 1200, 630);
+        
+        // Hlavný text
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 80px Segoe UI, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('SlovakTube', 600, 150);
+        
+        // Podnadpis
+        ctx.font = 'bold 50px Segoe UI, sans-serif';
+        ctx.fillText('TOP 50 SLOVENSKÝCH', 600, 250);
+        ctx.fillText('YOUTUBE KANÁLOV', 600, 320);
+        
+        // Dátum (dynamický)
+        const now = new Date();
+        const monthNames = ['január','február','marec','apríl','máj','jún','júl','august','september','október','november','december'];
+        const month = monthNames[now.getMonth()];
+        ctx.font = 'bold 35px Segoe UI, sans-serif';
+        ctx.fillStyle = '#FFD700';
+        ctx.fillText(`${month} ${now.getFullYear()}`, 600, 400);
+        
+        // Ikona YouTube play button
+        ctx.fillStyle = '#FF0000';
+        ctx.beginPath();
+        ctx.arc(200, 450, 60, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        ctx.moveTo(230, 430);
+        ctx.lineTo(230, 470);
+        ctx.lineTo(270, 450);
+        ctx.closePath();
+        ctx.fill();
+        
+        // URL
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.font = 'bold 28px Segoe UI, sans-serif';
+        ctx.fillText('slovaktube.sk', 600, 550);
+        
+        // Nastaviť do meta tagov
+        const dataUrl = canvas.toDataURL('image/png');
+        document.querySelector('meta[property="og:image"]').setAttribute('content', dataUrl);
+        document.querySelector('meta[name="twitter:image"]').setAttribute('content', dataUrl);
+      }
       async function loadChannels() {
         const status = document.getElementById("status");
         status.innerHTML =
@@ -453,11 +509,16 @@
         if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
         return n;
       }
-
-      window.onload = loadChannels;
+// ⭐ SPUSTIŤ VŠETKO: thumbnail + meta + YouTube data ⭐
+      window.addEventListener('load', () => {
+        createThumbnail();
+        updateMetaDate();
+        loadChannels();
+      });
     </script>
   </body>
 </html>
+
 
 
 
