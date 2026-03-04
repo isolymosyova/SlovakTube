@@ -1,191 +1,306 @@
 <!DOCTYPE html>
 <html lang="sk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SlovakTube</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; color: #333; }
-        .header { 
-            background: linear-gradient(135deg, #ff4444, #cc0000); 
-            color: white; padding: 2rem; text-align: center; 
-        }
-        .container { max-width: 1300px; margin: 0 auto; padding: 2rem; }
-        .channels-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); 
-            gap: 2rem; margin-top: 2rem;
-        }
-        .channel-card {
-            background: white; border-radius: 20px; overflow: hidden; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1); 
-            transition: transform 0.3s, box-shadow 0.3s; cursor: pointer;
-        }
-        .channel-card:hover { transform: translateY(-10px); box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-        .channel-header { 
-            height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            position: relative;
-        }
-        .rank-badge {
-            position: absolute; top: 20px; right: 20px; 
-            background: rgba(255,255,255,0.95); color: #333; padding: 10px 18px; 
-            border-radius: 25px; font-weight: bold; font-size: 1.1rem;
-        }
-        .channel-avatar {
-            position: absolute; bottom: -60px; left: 25px; 
-            width: 120px; height: 120px; border-radius: 50%; 
-            border: 5px solid white; background: #ddd; background-size: cover;
-        }
-        .channel-info { padding: 85px 25px 25px; }
-        .channel-name { font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
-        .channel-stats { display: flex; justify-content: space-between; }
-        .stat-item { text-align: center; flex: 1; }
-        .stat-value { font-size: 1.4rem; font-weight: bold; color: #333; margin-bottom: 5px; }
-        .stat-label { color: #888; font-size: 0.85rem; text-transform: uppercase; }
-        .loading { text-align: center; padding: 4rem; font-size: 1.2rem; color: #666; }
-        .api-working { background: #d4edda; color: #155724; padding: 1rem; border-radius: 10px; margin-bottom: 2rem; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #f8f9fa;
+        color: #333;
+      }
+      .header {
+        background: linear-gradient(135deg, #ff4444, #cc0000);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+      }
+      .container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .channels-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+      .channel-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+      }
+      .channel-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      }
+      .channel-header {
+        height: 200px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+      }
+      .rank-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #333;
+        padding: 10px 18px;
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+      .channel-avatar {
+        position: absolute;
+        bottom: -60px;
+        left: 25px;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 5px solid white;
+        background: #ddd;
+        background-size: cover;
+      }
+      .channel-info {
+        padding: 85px 25px 25px;
+      }
+      .channel-name {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+      .channel-stats {
+        display: flex;
+        justify-content: space-between;
+      }
+      .stat-item {
+        text-align: center;
+        flex: 1;
+      }
+      .stat-value {
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+      }
+      .stat-label {
+        color: #888;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+      }
+      .loading {
+        text-align: center;
+        padding: 4rem;
+        font-size: 1.2rem;
+        color: #666;
+      }
+      .api-working {
+        background: #d4edda;
+        color: #155724;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <header class="header">
-        <h1>SlovakTube</h1>
-        <p>Slovenské YouTube kanály (API + manuálne dáta)</p>
+      <h1>SlovakTube</h1>
+      <p>Slovenské YouTube kanály (API + manuálne dáta)</p>
     </header>
 
     <div class="container">
-        <div id="status"></div>
-        <div class="channels-grid" id="channels-grid">
-            <div class="loading">Načítavam...</div>
-        </div>
+      <div id="status"></div>
+      <div class="channels-grid" id="channels-grid">
+        <div class="loading">Načítavam...</div>
+      </div>
     </div>
 
     <script>
-        const API_KEY = 'AIzaSyDBbpVaxsT09yTHs9sfXXlPro7CG-cEPCg';
-        
-        // TOP 10 SKUTOČNÝCH slovenských kanálov (channel IDs)
-        const SLOVAK_CHANNELS = [
-            'UCewFV_KI5BSu0f8bKZ4BMfA',  // GoGoManTV
-            'UCR6Httwme-xk5mKlni-lRzw',   // Expl0ited
-            'UC-yJccH4T1UnNrY0YyspGYg',  // DONFANTASTICKYPESS
-            'UC-4-MPfaybK-24aRx3mYoQA',  // Silvia Solymosyová
-            'UCbaY6IEY0-pRHBU_qCswoNQ',  // Peter PlutaX
-            'UCVwbN23uVtE_DWnA29DO7Yg',  // Lucia Mikušová
-            'UCZpYGScgfr0C87q58f8ZX_g',  // FerFox
-            'UCnX...example',            // Pridaj ďalšie
+      const API_KEY = "AIzaSyDBbpVaxsT09yTHs9sfXXlPro7CG-cEPCg";
+
+      // TOP 12 SKUTOČNÝCH slovenských kanálov (channel IDs)
+      const SLOVAK_CHANNELS = [
+        "UCmsd0Ar0UoZoMbYEBUWLWMA", // Asimister
+        "UC-yJccH4T1UnNrY0YyspGYg", // DONFANTASTICKYPESS
+        "UCR6Httwme-xk5mKlni-lRzw", // Expl0ited
+        "UCZpYGScgfr0C87q58f8ZX_g", // FerFox
+        "UCewFV_KI5BSu0f8bKZ4BMfA", // GoGoManTV
+        "UCckh_8hdHZUdXJPixpWv-qQ", // Galgan Music
+        "UCjIl8ztAFLTiZkhvgaiOoow", // KALI RECORDS
+        "UCNV6tckdVW3L_wiBN8tz9gQ", // menameselassie
+        "UCVwbN23uVtE_DWnA29DO7Yg", // Lucia Mikušová
+        "UCbaY6IEY0-pRHBU_qCswoNQ", // Peter PlutaX
+        "UC-4-MPfaybK-24aRx3mYoQA", // Silvia Solymosyová
+        "UC7-hMlW_QECv-fghTGUWgYg", // StudioMoonTV
+        "UCIAAI5FnphpbEYVdpuB2CHg", // Televízia Markíza
+        "UC5zY50gn7Z0-yGSt74dRZXw", // Televízia JOJ
+      ];
+
+      async function loadChannels() {
+        const grid = document.getElementById("channels-grid");
+        const status = document.getElementById("status");
+
+        try {
+          // Skús API pre prvý kanál
+          const response = await fetch(
+            `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${SLOVAK_CHANNELS[0]}&key=${API_KEY}`
+          );
+          const data = await response.json();
+
+          if (data.items && data.items.length > 0) {
+            status.innerHTML =
+              '<div class="api-working">✅ YouTube API funguje! Načítavam dáta...</div>';
+            loadApiChannels();
+          } else {
+            status.innerHTML =
+              '<div style="background: #fff3cd; color: #856404; padding: 1rem; border-radius: 10px;">⚠️ API nedostupné - zobrazujem manuálne dáta</div>';
+            showManualChannels();
+          }
+        } catch (error) {
+          status.innerHTML =
+            '<div style="background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 10px;">❌ API chyba - manuálne dáta</div>';
+          showManualChannels();
+        }
+      }
+
+      async function loadApiChannels() {
+        const grid = document.getElementById("channels-grid");
+        const ids = SLOVAK_CHANNELS.slice(0, 8).join(",");
+
+        try {
+          const response = await fetch(
+            `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${ids}&key=${API_KEY}`
+          );
+          const data = await response.json();
+
+          const channels =
+            data.items
+              ?.filter((ch) => ch.statistics)
+              .sort(
+                (a, b) =>
+                  parseInt(b.statistics.subscriberCount) -
+                  parseInt(a.statistics.subscriberCount)
+              ) || [];
+
+          displayChannels(channels);
+        } catch (e) {
+          showManualChannels();
+        }
+      }
+
+      function showManualChannels() {
+        const manualData = [
+          {
+            id: "UCq7ZCZg9Jsy215usofuNSAw",
+            snippet: {
+              title: "PACI PAC",
+              thumbnails: {
+                medium: {
+                  url: "https://yt3.ggpht.com/Q8kLmfkD2K2f-fDkbF2hCUqKph_sjCHq7dS9sEOk5g=s176-c-k-c0x00ffffff-no-rj-mo",
+                },
+              },
+            },
+            statistics: {
+              subscriberCount: "12700000",
+              viewCount: "3500000000",
+              videoCount: "892",
+            },
+          },
+          {
+            id: "UCGIMavPGhcnqxAu3PHf7r8Q",
+            snippet: {
+              title: "Peter PlutaX",
+              thumbnails: { medium: { url: "https://yt3.ggpht.com/ytc/..." } },
+            },
+            statistics: {
+              subscriberCount: "3160000",
+              viewCount: "1850000000",
+              videoCount: "1200",
+            },
+          },
+          {
+            id: "UCQ_jR_iUmDsR50GX33qWvog",
+            snippet: {
+              title: "ANGRY EARTH",
+              thumbnails: { medium: { url: "https://yt3.ggpht.com/..." } },
+            },
+            statistics: {
+              subscriberCount: "1920000",
+              viewCount: "1530000000",
+              videoCount: "800",
+            },
+          },
         ];
+        displayChannels(manualData);
+      }
 
-        async function loadChannels() {
-            const grid = document.getElementById('channels-grid');
-            const status = document.getElementById('status');
-            
-            try {
-                // Skús API pre prvý kanál
-                const response = await fetch(
-                    `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${SLOVAK_CHANNELS[0]}&key=${API_KEY}`
-                );
-                const data = await response.json();
-                
-                if (data.items && data.items.length > 0) {
-                    status.innerHTML = '<div class="api-working">✅ YouTube API funguje! Načítavam dáta...</div>';
-                    loadApiChannels();
-                } else {
-                    status.innerHTML = '<div style="background: #fff3cd; color: #856404; padding: 1rem; border-radius: 10px;">⚠️ API nedostupné - zobrazujem manuálne dáta</div>';
-                    showManualChannels();
-                }
-                
-            } catch(error) {
-                status.innerHTML = '<div style="background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 10px;">❌ API chyba - manuálne dáta</div>';
-                showManualChannels();
-            }
-        }
+      function displayChannels(channels) {
+        const grid = document.getElementById("channels-grid");
+        grid.innerHTML = channels
+          .map((channel, i) => {
+            const stats = channel.statistics;
+            const title = channel.snippet?.title || "Názov";
+            const avatar = channel.snippet?.thumbnails?.medium?.url || "";
 
-        async function loadApiChannels() {
-            const grid = document.getElementById('channels-grid');
-            const ids = SLOVAK_CHANNELS.slice(0, 8).join(',');
-            
-            try {
-                const response = await fetch(
-                    `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${ids}&key=${API_KEY}`
-                );
-                const data = await response.json();
-                
-                const channels = data.items
-                    ?.filter(ch => ch.statistics)
-                    .sort((a,b) => parseInt(b.statistics.subscriberCount) - parseInt(a.statistics.subscriberCount)) || [];
-                
-                displayChannels(channels);
-            } catch(e) {
-                showManualChannels();
-            }
-        }
-
-        function showManualChannels() {
-            const manualData = [
-                {
-                    id: 'UCq7ZCZg9Jsy215usofuNSAw',
-                    snippet: { title: 'PACI PAC', thumbnails: { medium: { url: 'https://yt3.ggpht.com/Q8kLmfkD2K2f-fDkbF2hCUqKph_sjCHq7dS9sEOk5g=s176-c-k-c0x00ffffff-no-rj-mo' } } },
-                    statistics: { subscriberCount: '12700000', viewCount: '3500000000', videoCount: '892' }
-                },
-                {
-                    id: 'UCGIMavPGhcnqxAu3PHf7r8Q',
-                    snippet: { title: 'Peter PlutaX', thumbnails: { medium: { url: 'https://yt3.ggpht.com/ytc/...' } } },
-                    statistics: { subscriberCount: '3160000', viewCount: '1850000000', videoCount: '1200' }
-                },
-                {
-                    id: 'UCQ_jR_iUmDsR50GX33qWvog', 
-                    snippet: { title: 'ANGRY EARTH', thumbnails: { medium: { url: 'https://yt3.ggpht.com/...' } } },
-                    statistics: { subscriberCount: '1920000', viewCount: '1530000000', videoCount: '800' }
-                }
-            ];
-            displayChannels(manualData);
-        }
-
-        function displayChannels(channels) {
-            const grid = document.getElementById('channels-grid');
-            grid.innerHTML = channels.map((channel, i) => {
-                const stats = channel.statistics;
-                const title = channel.snippet?.title || 'Názov';
-                const avatar = channel.snippet?.thumbnails?.medium?.url || '';
-                
-                return `
-                    <div class="channel-card" onclick="window.open('https://youtube.com/channel/${channel.id}')">
+            return `
+                    <div class="channel-card" onclick="window.open('https://youtube.com/channel/${
+                      channel.id
+                    }')">
                         <div class="channel-header">
-                            <div class="rank-badge">#${i+1}</div>
+                            <div class="rank-badge">#${i + 1}</div>
                         </div>
                         <div class="channel-avatar" style="background-image: url('${avatar}');"></div>
                         <div class="channel-info">
                             <div class="channel-name">${title}</div>
                             <div class="channel-stats">
                                 <div class="stat-item">
-                                    <div class="stat-value">${formatNumber(stats.subscriberCount)}</div>
+                                    <div class="stat-value">${formatNumber(
+                                      stats.subscriberCount
+                                    )}</div>
                                     <div class="stat-label">Odberatelia</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-value">${formatNumber(stats.viewCount)}</div>
+                                    <div class="stat-value">${formatNumber(
+                                      stats.viewCount
+                                    )}</div>
                                     <div class="stat-label">Pozretia</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-value">${formatNumber(stats.videoCount)}</div>
+                                    <div class="stat-value">${formatNumber(
+                                      stats.videoCount
+                                    )}</div>
                                     <div class="stat-label">Videá</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 `;
-            }).join('');
-        }
+          })
+          .join("");
+      }
 
-        function formatNumber(num) {
-            if (!num) return '0';
-            const n = parseInt(num);
-            if (n >= 1e9) return (n/1e9).toFixed(1) + 'B';
-            if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
-            if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
-            return n;
-        }
+      function formatNumber(num) {
+        if (!num) return "0";
+        const n = parseInt(num);
+        if (n >= 1e9) return (n / 1e9).toFixed(1) + "B";
+        if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
+        if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
+        return n;
+      }
 
-        // START
-        window.onload = loadChannels;
+      // START
+      window.onload = loadChannels;
     </script>
-</body>
+  </body>
 </html>
