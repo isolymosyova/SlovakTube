@@ -3,7 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SlovakTube - 50 kanálov</title>
+    <title>SlovakTube - Top 50 Slovenských YouTube Kanálov (marec 2026)</title>
+<!-- ⭐ SEO META TAGS ⭐ -->
+<meta name="description" content="50 najpopulárnejších slovenských YouTube kanálov - reálne štatistiky (marec 2026). Odberatelia, pozretia, videá.">
+<meta name="keywords" content="slovenské youtube kanály, top slovenskí youtuberi, najviac odberateľov, youtube štatistiky">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="SlovakTube - 50 najpopulárnejších SK YouTube kanálov">
+<meta property="og:description" content="Aktuálne štatistiky top 50 slovenských YouTube kanálov (marec 2026)">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://slovaktube.netlify.app">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://slovaktube.netlify.app">
+
     <style>
       * {
         margin: 0;
@@ -162,6 +173,73 @@
         .ranking-buttons {
           flex-direction: column;
         }
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  /* Mobile table: cards instead of table */
+  .table-container {
+    display: block;
+    border-radius: 15px;
+  }
+  
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .table-header {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+  
+  th, td {
+    padding: 0.8rem 0.5rem;
+    font-size: 0.85rem;
+    min-width: 80px;
+  }
+  
+  .rank {
+    width: 50px;
+    font-size: 1.1rem;
+  }
+  
+  .channel-col {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .channel-avatar-table {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .channel-name-table {
+    font-size: 0.9rem;
+  }
+  
+  /* Stack buttons vertically */
+  .ranking-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .ranking-btn {
+    margin-bottom: 0.5rem;
+    padding: 15px;
+    font-size: 1rem;
+  }
+  
+  /* Touch-friendly hover */
+  tr:active {
+    background: #e3f2fd !important;
+    transform: scale(1.02);
+  }
+}
+
       }
     </style>
   </head>
@@ -250,6 +328,10 @@
         "UCBH_6lVtXgeE3kRXnHM0j1Q",
         "UCV8vFoWjREuRfcT7tV7rgqw",
         "UCf8uJtXcp2eslExS9CclNag",
+        "UCX6GmNg33GTTUfJYqWOdFwQ",
+        "UC2QySOE0ohZFd-1XsXzNHPw",
+        "UCia0mF-pM9xo5ZMN8DoFp_Q",
+        "UCKo69ZqrTI1uz1Kx4V6WTYQ",
       ];
 
       async function loadChannels() {
